@@ -1,0 +1,49 @@
+Nume:
+Grupa:
+
+	ELF Executable Loader
+
+	Track executable file using "global_fd". After parser execution, open file
+specified in path as read-only and assign to global_fd. This will be used later
+to populate data inside each page.
+
+	SIGSEGV handler used is "demand_paging_handler" set to sa_sigaction and also
+enable SA_SIGNINFO to sa_flags to be able to run sa_sigaction handler.
+
+	Segment data:
+
+	Use "seg_data_t" structure to populate each segment data. Structure tracks
+the number of pages in each segment and all pages already mapped:
+
+	mapped_pages[page_id] = 0	=> page not mapped
+	mapped_pages[page_id] = 1	=> page mapped
+
+	demand_paging_handler:
+
+	1) When page fault is generated extract fault address (f_addr) from siginfo
+	2) Iterate in all segments and check if fault address is between segment
+starting address (vaddr) and end address (mem_size). If a segment is not found,
+return default SIGSEGV handler.
+	3) Interogate seg_data_t structure on segment and if page is already mapped
+return default SIGSEGV handler. (invalid memory access)
+	4) Page not mapped => map the page using mmap call. Use temporary "PERM_W"
+since we have to populate page with data from the file and change the
+permission later.
+	5) Move inside file using lseek call. When moving, use segment offset in
+file and increment it with "page_id * page_size" depending on which page we
+deal with.
+	6) Get the actual page size we have to fill in with data based on segment
+file size.
+
+		6.1) If segment mem size is inside page, we will only set to 0 the
+		memory until mem_size.
+
+		6.2) Read data from file and move to page.
+
+	7) Update page permissions to segment ones.
+
+	8) Mark page as mapped inside segment.
+
+	!!!
+	Before running default handler free data allocated to all segments.
+	!!!

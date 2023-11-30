@@ -9,6 +9,10 @@ Mini [memory allocator](https://gitlab.cs.pub.ro/operating-systems/assignment-me
 Mini stdio library implementation.
 
 
+ ## Executable Loader
+[Executable loader](https://ocw.cs.pub.ro/courses/so/teme/tema-3) implemented as a shared library for ELF files.
+
+
  ## Kernel List API
 [Kernel module](https://linux-kernel-labs.github.io/refs/heads/master/so2/assign0-kernel-api.html) which stores data in an internal list using list API implemented in kernel.
 
