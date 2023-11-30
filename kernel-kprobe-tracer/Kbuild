@@ -1,0 +1,3 @@
+obj-m = tracer.o
+
+tracer-objs := tracer_main.o tracer_info.o
